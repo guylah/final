@@ -1,0 +1,31 @@
+pipeline {
+    
+  agent any
+   stages {
+     stage('Checkout code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/guylah/final'
+            }
+     }
+     stage('tf init') {
+            steps {
+                sh "terraform init"
+            }
+     }
+     stage('tf validate') {
+            steps {
+                sh "terraform validate"
+            }
+     }
+     stage('tf apply') {
+            steps {
+                sh "terraform apply -auto-approve"
+            }
+     }
+     stage('tf destroy') {
+            steps {
+                sh "terraform destroy"
+            }
+     }
+   }
+}
