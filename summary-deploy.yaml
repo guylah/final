@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: summary1-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: summary1-deploy
+  template:
+    metadata:
+      labels:
+        app: summary1-deploy
+    spec:
+      containers:
+        - name: sum-cont
+          image: docker.io/guylah/summary
+          ports:
+          - containerPort: 5000

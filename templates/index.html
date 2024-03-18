@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>User List</title>
+    <link rel="stylesheet" href="../static/style2.css">
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th, td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #6637bd;
+      }
+
+      th {
+        background-color: #974aca;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>User List</h1>
+
+    {% if users %}
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+      </tr>
+      {% for user in users %}
+      <tr>
+        <td>{{ user.name }}</td>
+        <td>{{ user.email }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <p>No users found.</p>
+    {% endif %}
+  </body>
+</html>
