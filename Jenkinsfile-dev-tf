@@ -4,7 +4,7 @@ pipeline {
    stages {
      stage('Checkout code') {
             steps {
-                git branch: 'main', url: 'https://github.com/guylah/final'
+                git branch: 'dev', url: 'https://github.com/guylah/final'
             }
      }
      stage('tf init') {
