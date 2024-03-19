@@ -12,14 +12,14 @@ resource "aws_vpc" "my_vpc" {
   
 }
 
-resource "aws_subnet" "public_subnet" {
+resource "aws_subnet" "public_dev_subnet" {
   vpc_id                  = aws_vpc.my_vpc.id
-  cidr_block              = "10.0.1.0/24"
+  cidr_block              = "10.0.2.0/24"
   map_public_ip_on_launch = true 
   availability_zone       = "us-east-1a" 
 
   tags = {
-    Name = "public-subnet"
+    Name = "public-dev-subnet"
   }
 }
 
@@ -47,10 +47,15 @@ resource "aws_route_table" "public_rt" {
 
 
 resource "aws_route_table_association" "public_subnet_assoc" {
-  subnet_id      = aws_subnet.public_subnet.id
+  subnet_id      = aws_subnet.public_dev_subnet.id
   route_table_id = aws_route_table.public_rt.id
 }
-  
+
+data "http" "my_ip" {
+  url = "http://icanhazip.com"
+
+}
+
 resource "aws_security_group" "sum-sg" {
     name_prefix = "sum-sg-"
     vpc_id = aws_vpc.my_vpc.id
@@ -59,32 +64,32 @@ resource "aws_security_group" "sum-sg" {
         from_port = 5000
         to_port = 5000
         protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = ["${chomp(data.http.my_ip.body)}/32"]
     }
 
     ingress {
         from_port = 80
         to_port = 80
         protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = ["${chomp(data.http.my_ip.body)}/32"]
     }
 
     ingress {
         from_port = 22
         to_port = 22
         protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = ["${chomp(data.http.my_ip.body)}/32"]
     }
 
     egress {
         from_port = 0
         to_port = 0
         protocol = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = ["${chomp(data.http.my_ip.body)}/32"]
     }
 
     tags = {
-      Name = "sum_sg"
+      Name = "dev_sg"
     }
 
 }
@@ -106,8 +111,8 @@ data "aws_ami" "ubuntu" {
 resource "aws_instance" "flask_app" {
     ami = data.aws_ami.ubuntu.id
     instance_type = var.instance_type
-    subnet_id = aws_subnet.public_subnet.id
-    vpc_security_group_ids = [aws_security_group.sum-sg.id]
+    subnet_id = aws_subnet.public_dev_subnet.id
+    vpc_security_group_ids = [aws_security_group.dev_sg.id]
     key_name = "eurokey"
 
     user_data = <<-EOF
@@ -117,12 +122,12 @@ sudo apt-get update
 sudo apt-get install -y docker.io
 sudo systemctl start docker
 echo "Pulling and running Docker container..."
-sudo docker pull guylah/summary:latest
-sudo docker run -d -p 5000:5000 guylah/summary:latest
+sudo docker pull guylah/final_dev:latest
+sudo docker run -d -p 5000:5000 guylah/final_dev:latest
 EOF
 
     tags = {
-      Name = "flask-app"
+      Name = "flask-app-dev"
     }
   
 }

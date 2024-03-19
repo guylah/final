@@ -7,29 +7,24 @@ pipeline {
   }
   
    stages {
-    stage('remove old container') {
-      steps {
-        sh 'docker rm -f sum_cont'
-      }
-    }
     stage('building new image') {
       steps {
-        sh 'docker build -t new_img .'
+        sh 'docker build -t dev_img .'
       }
     }
     stage('run containers') {
       steps {
-        sh 'docker run -d --name new_cont new_img:latest & docker run -d -p 5000:5000 --name sum_cont -v db-vol:/var/lib/docker/volumes new_img:latest'
+        sh 'docker run -d -p 5000:5000 --name dev_cont -v dev-db-vol:/var/lib/docker/volumes dev_img:latest'
       }
     }
     stage('stop test container') {
       steps {
-        sh 'docker stop new_cont'
+        sh 'docker stop dev_cont'
         }
     }
     stage('remove test container') {
       steps {
-        sh 'docker remove new_cont'
+        sh 'docker remove dev_cont'
         }
     }
     stage('docker login') {
@@ -39,23 +34,19 @@ pipeline {
     }
     stage('tag new image') {
       steps {
-        sh 'docker tag new_img guylah/summary:latest'
+        sh 'docker tag dev_img guylah/final_dev:latest'
         }
     }
     stage('push image to docker hub') {
       steps {
-        sh 'docker push guylah/summary:latest'
+        sh 'docker push guylah/final_dev:latest'
         }
     }
-        stage('kubectl apply') {
-            steps {
-                sh 'kubectl apply -f summary-deploy.yaml --validate=false'
-            }
-        }
+
 
         stage('delete old image') {
       steps {
-        sh 'docker rmi new_img' 
+        sh 'docker rmi dev_img' 
         }
     }
   }
