@@ -12,14 +12,24 @@ resource "aws_vpc" "my_vpc" {
   
 }
 
-resource "aws_subnet" "public_subnet" {
+resource "aws_subnet" "public_subnet_1" {
   vpc_id                  = aws_vpc.my_vpc.id
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true 
   availability_zone       = "us-east-1a" 
 
   tags = {
-    Name = "public-subnet"
+    Name = "public-subnet-1"
+  }
+}
+resource "aws_subnet" "public_subnet_2" {
+  vpc_id                  = aws_vpc.my_vpc.id
+  cidr_block              = "10.0.3.0/24"
+  map_public_ip_on_launch = true 
+  availability_zone       = "us-east-1b" 
+
+  tags = {
+    Name = "public-subnet-2"
   }
 }
 
@@ -46,8 +56,13 @@ resource "aws_route_table" "public_rt" {
 }
 
 
-resource "aws_route_table_association" "public_subnet_assoc" {
-  subnet_id      = aws_subnet.public_subnet.id
+resource "aws_route_table_association" "public_subnet_assoc_1" {
+  subnet_id      = aws_subnet.public_subnet_1.id
+  route_table_id = aws_route_table.public_rt.id
+}
+
+resource "aws_route_table_association" "public_subnet_assoc_2" {
+  subnet_id      = aws_subnet.public_subnet_2.id
   route_table_id = aws_route_table.public_rt.id
 }
   
@@ -84,7 +99,7 @@ resource "aws_security_group" "sum-sg" {
     }
 
     tags = {
-      Name = "sum_sg"
+      Name = "sum-sg"
     }
 
 }
@@ -104,13 +119,66 @@ data "aws_ami" "ubuntu" {
   
 }
 resource "aws_instance" "flask_app" {
+    count = 2
     ami = data.aws_ami.ubuntu.id
     instance_type = var.instance_type
-    subnet_id = aws_subnet.public_subnet.id
+    subnet_id = aws_subnet.public_subnet_1.id
     vpc_security_group_ids = [aws_security_group.sum-sg.id]
     key_name = "eurokey"
 
-    user_data = <<-EOF
+    tags = {
+      Name = "flask-app-${count.index}"
+    }
+  
+}
+
+resource "aws_lb" "prod_lb" {
+  name = "prod-lb"
+  load_balancer_type = "application"
+  subnets = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
+  security_groups = [aws_security_group.sum-sg.id]
+  
+}
+resource "aws_lb_listener" "prod-listener" {
+  load_balancer_arn = aws_lb.prod_lb.arn
+  port = "80"
+  protocol = "HTTP"
+
+  default_action {
+    type = "forward"
+    target_group_arn = aws_lb_target_group.prod_target.arn
+  }
+  
+}
+resource "aws_lb_target_group" "prod_target" {
+  name = "prod-target"
+  port = "5000"
+  protocol = "HTTP"
+  vpc_id = aws_vpc.my_vpc.id
+  target_type = "instance"
+
+  health_check {
+    path = "/"
+    healthy_threshold = 2
+    unhealthy_threshold = 2
+  }
+  
+}
+resource "aws_lb_target_group_attachment" "prod_attach" {
+  count = 2
+  target_group_arn = aws_lb_target_group.prod_target.arn
+  target_id = aws_instance.flask_app[count.index].id
+  port = 5000
+  
+}
+
+resource "aws_launch_configuration" "launch_config" {
+  name_prefix = "launch-config"
+  image_id = data.aws_ami.ubuntu.id
+  instance_type = "t2.micro"
+  security_groups = [aws_security_group.sum-sg.id]
+
+  user_data = <<-EOF
 #!/bin/bash
 echo "Installing dependencies..."
 sudo apt-get update
@@ -121,8 +189,22 @@ sudo docker pull guylah/summary:latest
 sudo docker run -d -p 5000:5000 guylah/summary:latest
 EOF
 
-    tags = {
-      Name = "flask-app"
-    }
+  lifecycle {
+    create_before_destroy = true
+  }
+  
+}
+resource "aws_autoscaling_group" "prod_auto_scaler" {
+  name = "prod-auto-scaler"
+  launch_configuration = aws_launch_configuration.launch_config.name
+  min_size = 2
+  max_size = 4
+  desired_capacity = 2
+  target_group_arns = [aws_lb_target_group.prod_target.arn]
+  vpc_zone_identifier = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
+
+  lifecycle {
+    create_before_destroy = true
+  }
   
 }
