@@ -1,22 +1,22 @@
 provider "aws" {
-    region = "us-east-1"
-  
+  region = "us-east-1"
+
 }
 
 resource "aws_vpc" "my_vpc" {
-    cidr_block = "10.0.0.0/16"
+  cidr_block = "10.0.0.0/16"
 
-    tags = {
-      Name = "my-vpc"
-    }
-  
+  tags = {
+    Name = "my-vpc"
+  }
+
 }
 
 resource "aws_subnet" "public_dev_subnet" {
   vpc_id                  = aws_vpc.my_vpc.id
   cidr_block              = "10.0.2.0/24"
-  map_public_ip_on_launch = true 
-  availability_zone       = "us-east-1a" 
+  map_public_ip_on_launch = true
+  availability_zone       = "us-east-1a"
 
   tags = {
     Name = "public-dev-subnet"
@@ -56,66 +56,66 @@ data "http" "my_ip" {
 
 }
 
-resource "aws_security_group" "sum-sg" {
-    name_prefix = "sum-sg-"
-    vpc_id = aws_vpc.my_vpc.id
+resource "aws_security_group" "dev_sg" {
+  name_prefix = "dev-sg-"
+  vpc_id      = aws_vpc.my_vpc.id
 
-    ingress {
-        from_port = 5000
-        to_port = 5000
-        protocol = "tcp"
-        cidr_blocks = ["${chomp(data.http.my_ip.body)}/32"]
-    }
+  ingress {
+    from_port   = 5000
+    to_port     = 5000
+    protocol    = "tcp"
+    cidr_blocks = ["${chomp(data.http.my_ip.body)}/32"]
+  }
 
-    ingress {
-        from_port = 80
-        to_port = 80
-        protocol = "tcp"
-        cidr_blocks = ["${chomp(data.http.my_ip.body)}/32"]
-    }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["${chomp(data.http.my_ip.body)}/32"]
+  }
 
-    ingress {
-        from_port = 22
-        to_port = 22
-        protocol = "tcp"
-        cidr_blocks = ["${chomp(data.http.my_ip.body)}/32"]
-    }
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["${chomp(data.http.my_ip.body)}/32"]
+  }
 
-    egress {
-        from_port = 0
-        to_port = 0
-        protocol = "-1"
-        cidr_blocks = ["${chomp(data.http.my_ip.body)}/32"]
-    }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
-    tags = {
-      Name = "dev_sg"
-    }
+  tags = {
+    Name = "dev_sg"
+  }
 
 }
 data "aws_ami" "ubuntu" {
-    most_recent = true
-    owners = ["099720109477"]
+  most_recent = true
+  owners      = ["099720109477"]
 
-    filter {
-      name = "name"
-      values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
-    }
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
 
-    filter {
-      name = "virtualization-type"
-      values = ["hvm"]
-    }
-  
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
 }
 resource "aws_instance" "flask_app" {
-    ami = data.aws_ami.ubuntu.id
-    instance_type = var.instance_type
-    subnet_id = aws_subnet.public_dev_subnet.id
-    vpc_security_group_ids = [aws_security_group.dev_sg.id]
-    key_name = "eurokey"
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = var.instance_type
+  subnet_id              = aws_subnet.public_dev_subnet.id
+  vpc_security_group_ids = [aws_security_group.dev_sg.id]
+  key_name               = "eurokey"
 
-    user_data = <<-EOF
+  user_data = <<-EOF
 #!/bin/bash
 echo "Installing dependencies..."
 sudo apt-get update
@@ -126,8 +126,7 @@ sudo docker pull guylah/final_dev:latest
 sudo docker run -d -p 5000:5000 guylah/final_dev:latest
 EOF
 
-    tags = {
-      Name = "flask-app-dev"
-    }
-  
+  tags = {
+    Name = "flask-app-dev"
+  }
 }
