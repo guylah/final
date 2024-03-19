@@ -1,0 +1,13 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Destroy Terraform Resources') {
+            steps {
+                dir('/var/lib/jenkins/workspace/final-tf-build') {
+                    sh 'terraform destroy --auto-approve'
+                }
+            }
+        }
+    }
+}
