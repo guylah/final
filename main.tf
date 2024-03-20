@@ -118,19 +118,7 @@ data "aws_ami" "ubuntu" {
     }
   
 }
-resource "aws_instance" "flask_app" {
-    count = 2
-    ami = data.aws_ami.ubuntu.id
-    instance_type = var.instance_type
-    subnet_id = aws_subnet.public_subnet_1.id
-    vpc_security_group_ids = [aws_security_group.sum-sg.id]
-    key_name = "eurokey"
 
-    tags = {
-      Name = "flask-app-${count.index}"
-    }
-  
-}
 
 resource "aws_lb" "prod_lb" {
   name = "prod-lb"
@@ -192,7 +180,7 @@ EOF
   lifecycle {
     create_before_destroy = true
   }
-  
+
 }
 resource "aws_autoscaling_group" "prod_auto_scaler" {
   name = "prod-auto-scaler"
@@ -202,6 +190,12 @@ resource "aws_autoscaling_group" "prod_auto_scaler" {
   desired_capacity = 2
   target_group_arns = [aws_lb_target_group.prod_target.arn]
   vpc_zone_identifier = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
+
+  tag {
+    key = "Name"
+    value = "flask-app"
+    propagate_at_launch = true
+  }
 
   lifecycle {
     create_before_destroy = true
