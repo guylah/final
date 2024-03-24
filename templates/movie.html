@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Movie Scores</title>
+    <link rel="stylesheet" href="../static/styles2.css">
+</head>
+<body>
+    <h1>Scores for {{ movie_name }}</h1>
+    <form class="watchlist-button" action="{{ url_for('movie', movie_name=movie_name) }}" method="post">
+        <button type="submit">Add to Watchlist</button>
+    </form>
+    <div class="scores">
+        <div class="score">
+            <img src="https://cdn.iconscout.com/icon/free/png-512/free-imdb-282766.png?f=webp&w=256" alt="IMDb">
+            <span>{{ imdb_score }}</span>
+        </div>
+        <div class="score">
+          <h3>TheAverage</h3>
+            <span>{{ avg_score }}</span>
+        </div>
+        <div class="score">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5b/Rotten_Tomatoes.svg" alt="Rotten Tomatoes">
+            <span>{{ tomato_score }}</span>
+        </div>
+    </div>
+    <a href="{{ url_for('index') }}">Search Again</a>
+</body>
+</html>

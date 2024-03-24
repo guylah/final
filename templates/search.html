@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Movie Score Search</title>
+    <link rel="stylesheet" href="../static/styles.css">
+  </head>
+  <body>
+    <h1>TheAverageMovie</h1>
+    <form action="{{ url_for('search') }}" method="post">
+      <label for="movie_name"></label>
+      <input type="text" placeholder="Search..." id="movie_name" name="movie_name" required>
+      <button type="submit">Search</button>
+    </form>
+    <a href="{{ url_for('login') }}">Log in</a>
+  </body>
+</html>
