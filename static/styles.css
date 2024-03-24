@@ -1,0 +1,78 @@
+
+body {
+	background-color: #333333;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+	height: 100vh;
+	margin: 0;
+	position: relative;
+	background-image: linear-gradient(to top, rgba(33, 33, 33, 0.45), rgba(33, 33, 33, 0.8) 70%, #333333), url(https://watchseries.mx/assets/t6/s6/images/intro.jpg);
+	background-size: cover;
+	background-position: center;
+  }
+  
+  h1 {
+	  color: white;
+	  margin-top: 15vh;
+	  margin-bottom: 20px;
+  }
+  
+  form {
+	  display: flex;
+	  align-items: center;
+	  margin-bottom: 20px;
+  }
+  
+  a {
+	color: rgb(255, 255, 255);
+	text-decoration: none;
+	font-weight: bold;
+	font-size: 1.6rem;
+	position: absolute;
+	top: 4%;
+	left: 4%;
+  }
+  
+  a:hover {
+	text-decoration: underline;
+  }
+  
+  /* ... rest of the CSS remains the same ... */
+  
+  /* ... rest of the CSS remains the same ... */
+  
+	#username {
+	  padding: 10px;
+	  border-radius: 10px;
+	  border: none;
+	  font-size: 16px;
+	  width: 200px;
+	  text-indent: 10px;
+	  background-color: #f2f2f2;
+	}
+	#movie_name {
+	  padding: 10px;
+	  border-radius: 20px;
+	  border: none;
+	  font-size: 16px;
+	  width: 300px;
+	  text-indent: 10px;
+	  background-color: #f2f2f2;
+	}
+	
+	#movie_name::placeholder {
+	  color: #999999;
+	}
+	
+	button[type="submit"] {
+	  margin-left: 10px;
+	  padding: 10px 20px;
+	  border-radius: 20px;
+	  border: none;
+	  background-color: #0077b6;
+	  color: white;
+	  font-size: 16px;
+	  cursor: pointer;
+	}

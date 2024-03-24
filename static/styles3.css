@@ -1,0 +1,54 @@
+body {
+    background-color: #333333;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url(https://watchseries.mx/assets/t6/s6/images/intro.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    color: white;
+    font-family: Arial, sans-serif;
+    position: relative;
+}
+
+h1 {
+    margin-top: 2%;
+    font-size: 36px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 3% 0 0 7%;
+}
+
+li {
+    margin-bottom: 10px;
+    font-size: 22px;
+}
+
+li::before {
+    content: "\2022";
+    color: white;
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+}
+
+a {
+    position: absolute;
+    top: 5%;
+    right: 5%;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 25px;
+}
+
+a:hover {
+    text-decoration: underline;
+}
