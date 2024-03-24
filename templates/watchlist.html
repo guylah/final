@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Watchlist</title>
+    <link rel="stylesheet" href="../static/styles3.css">
+  </head>
+  <body>
+    <h1>{{ username }}'s Watchlist</h1>
+    <ul>
+      {% for movie in watchlist %}
+        <li>{{ movie }}</li>
+      {% endfor %}
+    </ul>
+    <a href="{{ url_for('index') }}">Search Again</a>
+  </body>
+</html>
