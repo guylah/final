@@ -13,6 +13,7 @@ db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
 
+x = 3
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30), unique=False, nullable=False)
