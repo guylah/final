@@ -155,7 +155,7 @@ resource "aws_lb_target_group" "prod_target" {
 resource "aws_lb_target_group_attachment" "prod_attach" {
   count = 2
   target_group_arn = aws_lb_target_group.prod_target.arn
-  target_id = aws_instance.flask_app[count.index].id
+  target_id = aws_autoscaling_group.prod_auto_scaler.id
   port = 5000
   
 }
