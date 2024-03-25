@@ -9,6 +9,7 @@ from imdb import Cinemagoer
 app = Flask(__name__)
 app.secret_key = "ilikemovies"
 
+#db access info
 def create_conn():
     conn = mysql.connector.connect(
         host="movie-db.cf8oq4agi34u.us-east-1.rds.amazonaws.com",
@@ -20,6 +21,7 @@ def create_conn():
 
 conn = create_conn()
 
+#creating the information table
 with conn.cursor() as cursor:
     sql = """
     CREATE TABLE IF NOT EXISTS user_watchlist (
@@ -30,7 +32,7 @@ with conn.cursor() as cursor:
     cursor.execute(sql)
     conn.commit()
 
-
+#creating the user class for the db, each user has an empty string as watchlist at first, dtata type text cant accept lists
 class User:
     username = None
     watchlist = None
@@ -72,12 +74,12 @@ def search():
 
 @app.route("/movie/<movie_name>", methods=["GET", "POST"])
 def movie(movie_name):
-    if request.method == "POST":
+    if request.method == "POST":   # if user clicks add to watchlist get the session username
         username = session.get('username')
-        if not username:
+        if not username:   # if user didnt log in, redirect to login
             return redirect("/login")
         
-        if username:
+        if username:   # if user did log in, add movie_name to his string
              with conn.cursor() as cursor:
                 cursor.execute("SELECT watchlist FROM user_watchlist WHERE username = %s", (username,))
                 user = cursor.fetchone()
@@ -98,7 +100,7 @@ def movie(movie_name):
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form.get("username")
+        username = request.form.get("username")  # get username from login and start session
         if username:
             session['username'] = username
 
@@ -106,7 +108,7 @@ def login():
                 cursor.execute("SELECT COUNT(*) FROM user_watchlist WHERE username = %s", (username,))
                 user_exists = cursor.fetchone()[0]
 
-                if not user_exists:
+                if not user_exists:  # if new user, add to table, with empty watchlist
                     cursor.execute("INSERT INTO user_watchlist (username, watchlist) VALUES (%s, %s)", (username, ""))
                     conn.commit()
 
