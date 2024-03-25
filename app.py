@@ -13,7 +13,7 @@ def create_conn():
     conn = mysql.connector.connect(
         host="movie-db.cf8oq4agi34u.us-east-1.rds.amazonaws.com",
         user="admin",
-        password="",
+        password="adminadmin",
         database="movie_db"
     )
     return conn
