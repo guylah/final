@@ -14,8 +14,13 @@ pipeline {
     }
     stage('run containers') {
       steps {
-        sh 'docker run -d -p 5000:5000 --name dev_cont -v dev-db-vol:/var/lib/docker/volumes dev_img:latest'
+        sh 'docker run -d -p 5000:5000 --name dev_cont dev_img:latest'
       }
+    }
+    stage('test container') {
+      steps {
+        sh 'curl http://localhost:5000'
+        }
     }
     stage('stop test container') {
       steps {
@@ -42,11 +47,9 @@ pipeline {
         sh 'docker push guylah/final_dev:latest'
         }
     }
-
-
-        stage('delete old image') {
+    stage('delete old image') {
       steps {
-        sh 'docker rmi dev_img' 
+        sh 'docker rmi dev_img guylah/final_dev:latest' 
         }
     }
   }
