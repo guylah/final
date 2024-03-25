@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Destroy Terraform Resources') {
             steps {
-                dir('/var/lib/jenkins/workspace/final-tf-build') {
+                dir('/var/lib/jenkins/workspace/prod-tf-build') {
                     sh 'terraform destroy --auto-approve'
                 }
             }
