@@ -14,12 +14,17 @@ pipeline {
     }
     stage('building new image') {
       steps {
-        sh 'docker build -t new_img .'
+        sh 'docker build -t prod_img .'
       }
     }
     stage('run containers') {
       steps {
-        sh 'docker run -d -p 5000:5000 --name sum_cont -v db-vol:/var/lib/docker/volumes new_img:latest'
+        sh 'docker run -d -p 5000:5000 --name sum_cont prod_img:latest'
+      }
+    }
+    stage('wait for site') {
+      steps{
+        sleep(10)
       }
     }
     stage('curl Request') {
@@ -31,12 +36,12 @@ pipeline {
         }
     stage('stop test container') {
       steps {
-        sh 'docker stop new_cont'
+        sh 'docker stop sum_cont'
         }
     }
     stage('remove test container') {
       steps {
-        sh 'docker remove new_cont'
+        sh 'docker remove sum_cont'
         }
     }
     stage('docker login') {
@@ -46,7 +51,7 @@ pipeline {
     }
     stage('tag new image') {
       steps {
-        sh 'docker tag new_img guylah/summary:latest'
+        sh 'docker tag prod_img guylah/summary:latest'
         }
     }
     stage('push image to docker hub') {
@@ -62,7 +67,7 @@ pipeline {
 
         stage('delete old image') {
       steps {
-        sh 'docker rmi new_img guylah/summary:latest' 
+        sh 'docker rmi prod_img guylah/summary:latest' 
         }
     }
   }
