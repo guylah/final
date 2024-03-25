@@ -139,7 +139,7 @@ resource "aws_lb_listener" "prod-listener" {
   
 }
 resource "aws_lb_target_group" "prod_target" {
-  name = "prod-target"
+  name = "prod-target-group"
   port = "5000"
   protocol = "HTTP"
   vpc_id = aws_vpc.my_vpc.id
@@ -152,13 +152,7 @@ resource "aws_lb_target_group" "prod_target" {
   }
   
 }
-resource "aws_lb_target_group_attachment" "prod_attach" {
-  count = 2
-  target_group_arn = aws_lb_target_group.prod_target.arn
-  target_id = aws_autoscaling_group.prod_auto_scaler.id
-  port = 5000
-  
-}
+
 
 resource "aws_launch_configuration" "launch_config" {
   name_prefix = "launch-config"
